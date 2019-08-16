@@ -20,10 +20,12 @@ all: ../fchinf.x ../fwck.x ../fdewin_a.x ../fdewin_s.x ../fwin2sac.x
 fchinf.o: fchinf.f90 m_win.o m_winch.o m_getopt.o m_util.o
 fdewin_a.o: fdewin_a.f90 m_win.o m_getopt.o
 fdewin_s.o: fdewin_s.f90 m_win.o m_getopt.o
+fwin2sac.o: fwin2sac.f90 m_win.o m_getopt.o m_system.o m_util.o m_wsac.o m_util.o m_winch.o
 fwck.o: fwck.f90 m_win.o
 m_getopt.o: m_getopt.f90 m_system.o
 m_winch.o: m_winch.f90 m_win.o
 m_wsac.o: m_wsac.f90 m_util.o
+m_win.o: m_win.f90 m_util.o
 
 ../fchinf.x: fchinf.o m_win.o m_getopt.o m_system.o m_util.o m_winch.o m_util.o
 	$(FC) $(FFLAGS) $^ -o $@
