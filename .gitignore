@@ -38,3 +38,6 @@
 *.cnt
 *.sac
 *.dat
+test/testdata/*
+*tmp*
+*lst
