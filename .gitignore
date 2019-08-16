@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+*.x
+
+# Data files
+*.win
+*.win32
+*.cnt
+*.sac
+*.dat
