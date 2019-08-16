@@ -90,7 +90,7 @@ program fdewin_a
       if( npts(i) > 0 ) then
         fn_asc = trim(d_out) //'/'//trim(chid(i))//'.dat'
         open(newunit=io, file=fn_asc, action='write', status='unknown')
-        do j=1, npts(i)*nw
+        do j=1, npts(i)
           write(io,'(I0)') dat(j,i)
         end do
         close(io)
