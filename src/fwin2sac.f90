@@ -108,7 +108,7 @@ program fwin2sac
   ! Read win files and export to SAC file
   !--    
   block
-    integer, allocatable :: dat(:,:), npts(:), sfreq(:)
+    integer, allocatable :: dat(:,:), npts(:,:), sfreq(:)
     character(256) :: fn_sac
     integer :: tim, nsec
     integer :: i
@@ -117,7 +117,7 @@ program fwin2sac
     character(6) :: hms
     character(6) :: clen
   
-    call win__read_files(fn_win, ch(:)%achid, npts, sfreq, dat, tim, nsec)
+    call win__read_files(fn_win, ch(:)%achid, sfreq, nsec, tim, dat, npts)
     call util__localtime(tim, &
       sh%nzyear, sh%nzmonth, sh%nzday, sh%nzhour, sh%nzmin, sh%nzsec, sh%nzjday)
     
@@ -133,7 +133,7 @@ program fwin2sac
 
     do i=1, nch
       call ch2sh(ch(i), sh)
-      sh%npts = npts(i) * nwin
+      sh%npts = sfreq(i) * nsec 
       sh%delta = 1/dble(sfreq(i))
       sh%e = (sh%npts - 1) * sh%delta
 

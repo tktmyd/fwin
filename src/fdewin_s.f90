@@ -17,11 +17,11 @@ program fdewin_s
   implicit none 
   !--
 
-  integer                     :: nch, nw
+  integer                     :: nch, nw, nsec
   character(256), allocatable :: fn_win(:)
   character(4),   allocatable :: chid(:)
   integer,        allocatable :: dat(:,:), dat0(:,:)
-  integer,        allocatable :: npts(:), sfreq(:), npts_all(:)
+  integer,        allocatable :: npts(:,:), sfreq(:), npts_all(:)
   character(80)               :: d_out
   integer, parameter          :: fsmax = 200
   logical                     :: is_test_mode
@@ -70,19 +70,18 @@ program fdewin_s
   !--
   block
     integer :: i, j
-    integer :: tim, nsec
+    integer :: tim
     !----
 
-    allocate( npts(nch), npts_all(nch), sfreq(nch) )
+    allocate( sfreq(nch) )
     allocate( dat(fsmax*60*nw,nch) ) !! initial size
     dat(:,:) = 0
 
     do i=1, nw
-      call win__read_file(fn_win(i), chid, npts, sfreq, dat0, tim, nsec)
+      call win__read_file(fn_win(i), chid, sfreq, nsec, tim, dat0, npts)
       do j=1, nch
-        if( npts(j) > 0 ) then
-          npts_all(j) = max(npts_all(j), npts(j))
-          dat((i-1)*npts_all(j)+1:(i-1)*npts_all(j)+npts(j), j) = dat0(1:npts(j),j)
+        if( sfreq(j) > 0 ) then
+          dat( (i-1)*sfreq(j)*nsec+1:i*sfreq(j)*nsec, j) = dat0(1:(i-1)*sfreq(j)*nsec,j)
         end if
       end do   
 
@@ -99,10 +98,10 @@ program fdewin_s
     !----
 
     do i=1, nch
-      if( npts(i) > 0 ) then
+      if( sfreq(i) > 0 ) then
         fn_asc = trim(d_out) //'/'//trim(chid(i))//'.dat'
         open(newunit=io, file=fn_asc, action='write', status='unknown')
-        do j=1, npts_all(i)*nw
+        do j=1, sfreq(i)*nsec*nw
           write(io,'(I0)') dat(j,i)
         end do
         close(io)

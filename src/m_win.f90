@@ -62,15 +62,15 @@ contains
   !> read single win data file for given channel ids chid. 
   !! if specified channel is not available, returns with npts(ich) = 0
   !--
-  subroutine win__read_file(fn_win, chid, npts, sfreq, dat, tim, nsec)
+  subroutine win__read_file(fn_win, chid, sfreq, nsec, tim, dat, npts)
 
     character(*), intent(in)  :: fn_win
     character(4), intent(in)  :: chid(:)
-    integer,      intent(out) :: npts(:)
     integer,      intent(out) :: sfreq(:)
-    integer,      intent(out), allocatable :: dat(:,:)
-    integer,      intent(out) :: tim
     integer,      intent(out) :: nsec
+    integer,      intent(out) :: tim
+    integer,      intent(out), allocatable :: dat(:,:)
+    integer,      intent(out), allocatable :: npts(:,:)
     !--
     integer :: io_win
     integer :: j
@@ -89,51 +89,52 @@ contains
     call win__start_file_buf(fn_win, wh, buf, io_win )
     call win__finish_file_buf(io_win)    
     call win__scan_buf(wh, buf)
+    if( .not. allocated(npts) ) allocate(npts(wh%nb, nch))
+    npts(:,:) = 0
     call win__decode_buf(wh, buf, nch, chid, dat0, npts, sfreq)
     allocate(dat(maxval(npts),nch))
 
     deallocate(buf)
-    do j=1, nch
-      dat(1:npts(j),j) = dat0(1:npts(j),j)
-    end do
-    deallocate(dat0)
 
     call util__timelocal(wh%yr(1), wh%mo(1), wh%dy(1), wh%hr(1), wh%mi(1), wh%sc(1), tim)
     nsec = wh%nb
+
+    do j=1, nch
+      dat(1:sfreq(j)*nsec,j) = dat0(1:sfreq(j)*nsec,j)
+    end do
+    deallocate(dat0)
 
     call win__free(wh)
 
   end subroutine win__read_file
 
   !----------------------------------------------------------------------------------------------!
-  !> read multiple win data files
+  !> read multiple win data files having same temporal lengths
   !--
-  subroutine win__read_files(fn_win, chid, npts, sfreq, dat, tim, nsec)
+  subroutine win__read_files(fn_win, chid, sfreq, nsec, tim, dat, npts)
     
     character(*), intent(in)  :: fn_win(:)
     character(4), intent(in)  :: chid(:)
-    integer,      intent(out) :: npts(:)
     integer,      intent(out) :: sfreq(:)
+    integer,      intent(out) :: nsec        !< number of seconds
+    integer,      intent(out) :: tim         !< Unix (POSIX) time of the head of the first file
     integer,      intent(out), allocatable :: dat(:,:)
-    integer,      intent(out) :: tim !< Unix (POSIX) time of the head of the first file
-    integer,      intent(out) :: nsec !< number of seconds
+    integer,      intent(out), allocatable :: npts(:,:)
     !--
     integer :: nw
     type(win__hdr) :: wh1, wh2
     integer :: io_win1, io_win2
     integer :: i, j
-    integer, allocatable :: dat0(:,:), npts0(:)
-    integer :: npts_max
+    integer, allocatable :: dat0(:,:), npts0(:,:)
+    integer :: nb
     integer :: nch
     character, allocatable :: buf1(:), buf2(:)
     logical :: first_touch
+    integer :: sfreq_max
     !----
 
     nw = size(fn_win(:))
     nch = size(chid(:))
-    allocate(dat0(npts_max, nch))
-    allocate(npts0(nch))
-    npts = 0
     if( .not. initialized ) call win__init()
     write(error_unit,'(A)') '[win__read_files]: ' // trim(fn_win(1))
 
@@ -146,31 +147,36 @@ contains
 
       write(error_unit,'(A)') '[win__read_files]: ' // trim(fn_win(i))
       call win__start_file_buf(fn_win(i), wh2, buf2, io_win2 )
-      call win__scan_buf(wh1, buf1)
+      call win__scan_buf(wh1, buf1)  
+      allocate(npts0(wh1%nb,nch))
       call win__decode_buf(wh1, buf1, nch, chid, dat0, npts0, sfreq)
-      do j=1, nch
-        npts(j) = max(npts(j), npts0(j))
-      end do
-      deallocate(buf1)
+!      do j=1, nch
+!        npts(j) = max(npts(j), npts0(j))
+!      end do
+!      deallocate(buf1, npts1)
 
       if( first_touch ) then
-        npts_max = maxval(npts0)
-        allocate(dat(npts_max*nw,nch))
+        nsec = nb * nw
+        nb = wh1%nb
+        sfreq_max = maxval(sfreq)
+        allocate(dat(sfreq_max*nsec,nch))
         dat(:,:) = 0
         call util__timelocal(wh1%yr(1), wh1%mo(1), wh1%dy(1), wh1%hr(1), wh1%mi(1), wh1%sc(1), tim)
-        nsec = 0
+        allocate(npts(nsec,nch))
+        npts(:,:) = 0
         first_touch = .false. 
       else 
-        if( maxval(npts0) > npts_max ) then
-          call expand_dat(dat, nch, npts_max*nw, maxval(npts0(:))*nw)
-          npts_max = maxval(npts0) 
+        if( maxval(sfreq) > sfreq_max ) then
+          call expand_dat(dat, nch, sfreq_max*nsec, maxval(sfreq)*nb*nw)
+          sfreq_max = maxval(sfreq)
         end if
       end if
 
+      npts((i-2)*nb+1:(i-1)*nb,:) = npts0(1:nb,:)
+
       do j=1, nch
-        dat((i-2)*npts0(j)+1:(i-1)*npts0(j), j) = dat0(1:npts0(j),j)
+        dat((i-2)*sfreq(j)+1:(i-1)*sfreq(j), j) = dat0(1:sfreq(j),j)
       end do
-      nsec = nsec + wh1%nb
       call win__free(wh1)  
               
       call win__finish_file_buf(io_win2)
@@ -180,25 +186,18 @@ contains
       
       call win__scan_buf(wh2, buf2)
       call win__decode_buf(wh2, buf2, nch, chid, dat0, npts0, sfreq)
-      do j=1, nch
-        npts(j) = max(npts(j), npts0(j))
-      end do
+
+      
       deallocate(buf2)
 
-      if( first_touch ) then
-        npts_max = maxval(npts0)
-        allocate(dat(npts_max*nw,nch))
-        first_touch = .false. 
-      else 
-        if( maxval(npts0) > npts_max ) then
-          call expand_dat(dat, nch, npts_max*nw, maxval(npts0(:))*nw)
-          npts_max = maxval(npts0) 
-        end if
+      if( maxval(sfreq) > sfreq_max ) then
+        call expand_dat(dat, nch, sfreq_max*nsec, maxval(sfreq)*nb*nw)
+        sfreq_max = maxval(sfreq)
       end if
 
-
+      npts((i-1)*nb+1:i*nb,:) = npts0(1:nb,:)
       do j=1, nch
-        dat((i-1)*npts0(j)+1:i*npts0(j), j) = dat0(1:npts0(j),j)
+        dat((i-1)*sfreq(j)+1:i*sfreq(j), j) = dat0(1:sfreq(j),j)
       end do
       nsec = nsec + wh2%nb
       call win__free(wh2)  
@@ -218,51 +217,47 @@ contains
     deallocate(dat0)
     call win__scan_buf(wh1, buf1)
     call win__decode_buf(wh1, buf1, nch, chid, dat0, npts0, sfreq)
-      do j=1, nch
-        npts(j) = max(npts(j), npts0(j))
-      end do
     deallocate(buf1)
     if( first_touch ) then
-      npts_max = maxval(npts0)
-      allocate(dat(npts_max*nw,nch))
+      nsec = nb * nw
+      nb = wh1%nb
+      sfreq_max = maxval(sfreq)
+      allocate(dat(sfreq_max*nsec,nch))
+      dat(:,:) = 0
       call util__timelocal(wh1%yr(1), wh1%mo(1), wh1%dy(1), wh1%hr(1), wh1%mi(1), wh1%sc(1), tim)
-      nsec = 0
+      allocate(npts(nsec,nch))
+      npts(:,:) = 0
       first_touch = .false. 
     else 
-      if( maxval(npts0) > npts_max ) then
-        call expand_dat(dat, nch, npts_max*nw, maxval(npts0(:))*nw)
-        npts_max = maxval(npts0) 
+      if( maxval(sfreq) > sfreq_max ) then
+        call expand_dat(dat, nch, sfreq_max*nsec, maxval(sfreq)*nb*nw)
+        sfreq_max = maxval(sfreq)
       end if
     end if
 
+    npts((i-2)*nb+1:(i-1)*nb,:) = npts0(1:nb,:)
     do j=1, nch
-      dat((i-2)*npts0(j)+1:(i-1)*npts0(j), j) = dat0(1:npts0(j),j)
+      dat((i-2)*sfreq(j)+1:(i-1)*sfreq(j), j) = dat0(1:sfreq(j),j)
     end do
-    nsec = nsec + wh1%nb
     call win__free(wh1)  
 
     if( mod(nw, 2) == 0 ) then
       call win__finish_file_buf(io_win2)
       call win__scan_buf(wh2, buf2)
       call win__decode_buf(wh2, buf2, nch, chid, dat0, npts0, sfreq)
-      do j=1, nch
-        npts(j) = max(npts(j), npts0(j))
-      end do
       deallocate(buf2)
 
-      if( maxval(npts0) > npts_max ) then
-        call expand_dat(dat, nch, npts_max*nw, maxval(npts0(:))*nw)
-        npts_max = maxval(npts0) 
-      end if    
+      if( maxval(sfreq) > sfreq_max ) then
+        call expand_dat(dat, nch, sfreq_max*nsec, maxval(sfreq)*nb*nw)
+        sfreq_max = maxval(sfreq)
+      end if
 
+      npts((i-1)*nb+1:i*nb,:) = npts0(1:nb,:)
       do j=1, nch
-        dat((i-1)*npts0(j)+1:i*npts0(j), j) = dat0(1:npts0(j),j)
+        dat((i-1)*sfreq(j)+1:i*sfreq(j), j) = dat0(1:sfreq(j),j)
       end do
-      nsec = nsec + wh2%nb
       call win__free(wh2)  
     end if
-
-    npts(:) = npts(:) * nw
 
     deallocate(dat0, npts0)
 
@@ -532,19 +527,18 @@ contains
   !----------------------------------------------------------------------------------------------!
   !> Decode win data buffer for specified channel ids
   !--
-  subroutine win__decode_buf( wh, buf, nch, chid, dat, npts, sfreq )
+  subroutine win__decode_buf(wh, buf, nch, chid, dat, npts, sfreq)
 
     type(win__hdr), intent(inout)              :: wh
-    character,        intent(in)               :: buf(:)     !< win data buffer
-    integer,          intent(in)               :: nch        !< #channels to decode
-    character(4),     intent(in)               :: chid(nch)  !< channel IDs 
-    integer,          intent(out), allocatable :: dat(:,:)   !< (npts,nch)
-    integer,          intent(out)              :: npts(nch)  !< #samples. 0 for not-found
-    integer,          intent(out)              :: sfreq(nch) !< sampling frequency
+    character,        intent(in)               :: buf(:)            !< win data buffer
+    integer,          intent(in)               :: nch               !< #channels to decode
+    character(4),     intent(in)               :: chid(nch)         !< channel IDs 
+    integer,          intent(out), allocatable :: dat(:,:)          !< (npts,nch)
+    integer,          intent(out)              :: npts(wh%nb, nch)  !< #samples. 0 for not-found
+    integer,          intent(out)              :: sfreq(nch)        !< sampling frequency
     !--
     integer :: ib
     integer :: ns(nch)
-    integer, allocatable :: ns0(:)
     integer :: dbuf(NS_MAX,nch)
     integer :: ich
     integer(int16) :: ichid(nch)
@@ -553,7 +547,6 @@ contains
     integer :: sfreq_max
     !----
 
-    allocate(ns0(nch))
     !! initialize module
     if( .not. initialized ) call win__init()
     if( .not. wh%chkbuf ) call win__scan_buf(wh, buf)
@@ -562,8 +555,7 @@ contains
     end do
     
     ns(:) = -1
-    ns0(:) = 0
-    npts(:) = 0
+    npts(:,:) = 0
     
     dbuf = 0
     sfreq(:) = 0
@@ -590,17 +582,13 @@ contains
       end if
 
       do ich=1, nch
+        npts(ib,ich) = ns(ich)
         if( ns(ich) > 0 ) then
           dat((ib-1)*ns(ich)+1:ib*ns(ich), ich) = dbuf(1:ns(ich),ich)
-          ns0(ich) = ns(ich) * ib
           sfreq(ich) = ns(ich)
         end if
       end do
     end do
-    do ich=1, nch
-      npts(ich) = ns0(ich)
-    end do
-    deallocate(ns0)
     
   end subroutine win__decode_buf
   !----------------------------------------------------------------------------------------------!
