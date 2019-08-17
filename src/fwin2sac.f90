@@ -25,7 +25,7 @@ program fwin2sac
   !--
   block
     integer :: io, ierr, i
-    character ::  fn_winlst
+    character(256) ::  fn_winlst
     logical :: is_opt
     call getopt('wl', is_opt,     fn_winlst)
 

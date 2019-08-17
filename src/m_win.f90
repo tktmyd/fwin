@@ -148,12 +148,15 @@ contains
       call win__start_file_buf(fn_win(i), wh2, buf2, io_win2 )
       call win__scan_buf(wh1, buf1)
       call win__decode_buf(wh1, buf1, nch, chid, dat0, npts0, sfreq)
-      npts = npts + npts0
+      do j=1, nch
+        npts(j) = max(npts(j), npts0(j))
+      end do
       deallocate(buf1)
 
       if( first_touch ) then
         npts_max = maxval(npts0)
         allocate(dat(npts_max*nw,nch))
+        dat(:,:) = 0
         call util__timelocal(wh1%yr(1), wh1%mo(1), wh1%dy(1), wh1%hr(1), wh1%mi(1), wh1%sc(1), tim)
         nsec = 0
         first_touch = .false. 
@@ -177,7 +180,9 @@ contains
       
       call win__scan_buf(wh2, buf2)
       call win__decode_buf(wh2, buf2, nch, chid, dat0, npts0, sfreq)
-      npts = npts + npts0
+      do j=1, nch
+        npts(j) = max(npts(j), npts0(j))
+      end do
       deallocate(buf2)
 
       if( first_touch ) then
@@ -213,7 +218,9 @@ contains
     deallocate(dat0)
     call win__scan_buf(wh1, buf1)
     call win__decode_buf(wh1, buf1, nch, chid, dat0, npts0, sfreq)
-    npts = npts + npts0
+      do j=1, nch
+        npts(j) = max(npts(j), npts0(j))
+      end do
     deallocate(buf1)
     if( first_touch ) then
       npts_max = maxval(npts0)
@@ -238,7 +245,9 @@ contains
       call win__finish_file_buf(io_win2)
       call win__scan_buf(wh2, buf2)
       call win__decode_buf(wh2, buf2, nch, chid, dat0, npts0, sfreq)
-      npts = npts + npts0
+      do j=1, nch
+        npts(j) = max(npts(j), npts0(j))
+      end do
       deallocate(buf2)
 
       if( maxval(npts0) > npts_max ) then
@@ -252,6 +261,8 @@ contains
       nsec = nsec + wh2%nb
       call win__free(wh2)  
     end if
+
+    npts(:) = npts(:) * nw
 
     deallocate(dat0, npts0)
 
@@ -523,7 +534,7 @@ contains
   !--
   subroutine win__decode_buf( wh, buf, nch, chid, dat, npts, sfreq )
 
-    type(win__hdr), intent(inout)            :: wh
+    type(win__hdr), intent(inout)              :: wh
     character,        intent(in)               :: buf(:)     !< win data buffer
     integer,          intent(in)               :: nch        !< #channels to decode
     character(4),     intent(in)               :: chid(nch)  !< channel IDs 
@@ -566,7 +577,7 @@ contains
     do ib=1, wh%nb
       call decode_1sec( wh, buf, ib, ichid, chid_tbl, ns, dbuf(:,:))
       if( ib == 1 ) then
-        sfreq_max = maxval(ns(:))
+        sfreq_max = max(maxval(ns(:)),1)
         if(allocated(dat)) deallocate(dat)
         allocate(dat(sfreq_max*wh%nb, nch))
         dat(:,:) = 0

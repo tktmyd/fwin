@@ -7,8 +7,8 @@
 ## This software is released under the MIT license. See LICENSE for details. 
 
 FC = gfortran
-FFLAGS = -pthread -ffast-math -Ofast -march=native
-#FFLAGS = -fbounds-check -fbacktrace -O0
+#FFLAGS = -pthread -ffast-math -Ofast -march=native
+FFLAGS = -fbounds-check -fbacktrace -O0
 all: ../fchinf.x ../fwck.x ../fdewin_a.x ../fdewin_s.x ../fwin2sac.x
 
 .SUFFIXES: 
