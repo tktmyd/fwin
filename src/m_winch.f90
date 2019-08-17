@@ -305,15 +305,13 @@ contains
     character(4), intent(out) :: chid  !< channel id
     integer,      intent(out) :: ikey  !< location in the wch(:), -1 for failure
     !--
-    integer(int16) :: ich
     integer :: i
     !----
 
     do i=1, size(wch)
-      ich = int(i, int16)
       if( trim(adjustl( wch(i)%stnm  )) == trim(adjustl(stnm)) .and. &
           trim(adjustl( wch(i)%cmpnm )) == trim(adjustl(cmpnm)) ) then
-        chid = win__ich2ach(ich)
+        chid = wch(i)%achid
         ikey = i
         return
        end if

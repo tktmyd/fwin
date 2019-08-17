@@ -199,6 +199,7 @@ contains
       call win__finish_file_buf(io_win1)
 
     end do
+
     if( mod(nw, 2) == 0 ) then
         write(error_unit,'(A)') '[win__read_files]: ' // trim(fn_win(nw))
         call win__start_file_buf(fn_win(nw), wh2, buf2, io_win2 )
@@ -206,7 +207,9 @@ contains
     else
       i = nw + 1 
     end if
+
     if( allocated(dat0) ) deallocate(dat0)
+
     call win__scan_buf(wh1, buf1)
     if(.not. allocated(npts0)) allocate(npts0(wh1%nb,nch))
     call win__decode_buf(wh1, buf1, nch, chid, dat0, npts0, sfreq)

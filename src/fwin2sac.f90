@@ -27,8 +27,8 @@ program fwin2sac
     integer :: io, ierr, i
     character(256) ::  fn_winlst
     logical :: is_opt
-    call getopt('wl', is_opt,     fn_winlst)
 
+    call getopt('wl', is_opt,     fn_winlst)
     if(.not. is_opt) call usage_stop()
     open(newunit=io, file=fn_winlst, iostat=ierr, action='read', status='old')
     if( ierr /= 0 ) error stop 'file not found: ' // trim(fn_winlst)
@@ -53,7 +53,7 @@ program fwin2sac
   ! select channel IDs from command-line arguments
   !--
   block
-    integer :: i, j, k
+    integer :: i, j, k, l
     integer :: nst, ncmp
     character(4) :: chid0
     character(16), allocatable :: stnm(:)
@@ -80,12 +80,24 @@ program fwin2sac
       call util__read_arglst(cmpbuf, ncmp, is_all_cmp, cmpnm)
         if( is_all_cmp ) call winch__get_all_cmpnm(ch_tbl, cmpnm)
 
-      allocate(chid(0))
-      do i=1, nst
-        do j=1, ncmp
+      do i=1, size(stnm)
+        do j=1, size(cmpnm)
           !try
           call winch__st2chid(ch_tbl, stnm(i), cmpnm(j), chid0, k)
-          if( k > 0 ) chid = [chid, chid0]
+          if( k > 0 ) nch = nch + 1
+        end do
+      end do
+      allocate(chid(nch))
+
+      l = 0
+      do i=1, size(stnm)
+        do j=1, size(cmpnm)
+          !try
+          call winch__st2chid(ch_tbl, stnm(i), cmpnm(j), chid0, k)
+          if( k > 0 ) then
+            l = l + 1
+            chid(l) = chid0
+          end if
         end do
       end do
     end if        
@@ -101,7 +113,6 @@ program fwin2sac
         end if
       end do
     end do
-
   end block
 
   !-----------------------------------------------------------------------------------------------!
@@ -117,11 +128,12 @@ program fwin2sac
     character(6) :: hms
     character(6) :: clen
   
+    allocate(sfreq(nch))
     call win__read_files(fn_win, ch(:)%achid, sfreq, nsec, tim, dat, npts)
+    call sac__init(sh)
     call util__localtime(tim, &
       sh%nzyear, sh%nzmonth, sh%nzday, sh%nzhour, sh%nzmin, sh%nzsec, sh%nzjday)
-    
-    call sac__init(sh)
+
  
     sh%nzmsec = 0
     sh%b = 0
@@ -140,7 +152,7 @@ program fwin2sac
       fn_sac = ymd // '__' // hms // '__' // clen // '__' // &
                trim(sh%kstnm) // '__' // trim(adjustl(sh%kcmpnm)) // '__.sac'
       
-      call sac__write(fn_sac, sh, dat(:,i)*ch%conv)
+      call sac__write(fn_sac, sh, dat(:,i)*ch(i)%conv, .true.)
     end do
 
   end block
