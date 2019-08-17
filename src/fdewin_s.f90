@@ -81,7 +81,7 @@ program fdewin_s
       call win__read_file(fn_win(i), chid, sfreq, nsec, tim, dat0, npts)
       do j=1, nch
         if( sfreq(j) > 0 ) then
-          dat( (i-1)*sfreq(j)*nsec+1:i*sfreq(j)*nsec, j) = dat0(1:(i-1)*sfreq(j)*nsec,j)
+           dat( (i-1)*sfreq(j)*nsec+1:i*sfreq(j)*nsec, j) = dat0(1:sfreq(j)*nsec,j)
         end if
       end do   
 

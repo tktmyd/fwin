@@ -74,7 +74,6 @@ program fdewin_a
     allocate( sfreq(nch) )
     allocate( dat(fsmax*60*nw,nch) ) !! initial size
     call win__read_files(fn_win, chid, sfreq, nsec, tim, dat, npts)
-    
   end block
   !-----------------------------------------------------------------------------------------------!
 
