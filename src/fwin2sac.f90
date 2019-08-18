@@ -17,6 +17,7 @@ program fwin2sac
   character(256), allocatable :: fn_win(:)
   integer :: nwin
   logical :: is_chtbl
+  character(256) :: dn
   type(winch__hdr), allocatable :: ch(:), ch_tbl(:) 
   !----
 
@@ -38,6 +39,8 @@ program fwin2sac
       read(io, '(A)') fn_win(i)
     end do
     close(io)
+
+    call getopt('d', is_opt, dn, '.')
   end block
 
   !-----------------------------------------------------------------------------------------------!
@@ -65,21 +68,24 @@ program fwin2sac
     !--
 
     call getopt('c',  is_opt_ch,  chbuf)
-    call getopt('st',  is_opt_st,  stbuf)
-    call getopt('cmp', is_opt_cmp, cmpbuf)
+    call getopt('s',  is_opt_st,  stbuf)
+    call getopt('p', is_opt_cmp, cmpbuf)
   
     if( (.not. is_opt_ch) .and. ( (.not. is_opt_st) .or. (.not. is_opt_cmp) ) ) call usage_stop()
-
+    nch = 0
     ! priority is on specified channel ID than station & components
     if( is_opt_ch ) then
       call util__read_arglst(chbuf, nch, is_all_chid, chid)
-        if( is_all_chid ) call winch__get_all_chid(ch_tbl, chid)
+      if( is_all_chid ) then
+        call winch__get_all_chid(ch_tbl, chid)
+        nch = size(chid)
+      end if
+
     else
       call util__read_arglst(stbuf, nst, is_all_st, stnm)
         if( is_all_st ) call winch__get_all_stnm(ch_tbl, stnm)
       call util__read_arglst(cmpbuf, ncmp, is_all_cmp, cmpnm)
         if( is_all_cmp ) call winch__get_all_cmpnm(ch_tbl, cmpnm)
-
       do i=1, size(stnm)
         do j=1, size(cmpnm)
           !try
@@ -88,7 +94,6 @@ program fwin2sac
         end do
       end do
       allocate(chid(nch))
-
       l = 0
       do i=1, size(stnm)
         do j=1, size(cmpnm)
@@ -101,22 +106,24 @@ program fwin2sac
         end do
       end do
     end if        
-
     !! prepare channel type data
-    allocate(ch(0))
-    do i=1, nch
-      ichid = win__ach2ich(chid(i))
-      do j=1, size(ch_tbl)
-        if( ichid == ch_tbl(j)%ichid ) then
-          ch = [ch, ch_tbl(j)]
-          exit
-        end if
-      end do
-    end do
-
-    !! no channel table given
-    if( .not. is_chtbl ) then
+    if( is_chtbl ) then
+      allocate(ch(0))
       do i=1, nch
+        ichid = win__ach2ich(chid(i))
+        do j=1, size(ch_tbl)
+          if( ichid == ch_tbl(j)%ichid ) then
+            ch_tbl(j)%conv = ch_tbl(j)%conv * 1d9
+            ch = [ch, ch_tbl(j)]
+            exit
+          end if
+        end do
+      end do
+    else
+      allocate(ch(nch))
+      do i=1, nch
+        call winch__init(ch(i))
+        ch(i)%achid = chid(i)
         ch(i)%stnm = ch(i)%achid
         ch(i)%cmpnm = ''
         ch(i)%conv = 1.0_real64
@@ -138,12 +145,12 @@ program fwin2sac
     character(6) :: clen
   
     allocate(sfreq(nch))
+
     call win__read_files(fn_win, ch(:)%achid, sfreq, nsec, tim, dat, npts)
     call sac__init(sh)
     call util__localtime(tim, &
       sh%nzyear, sh%nzmonth, sh%nzday, sh%nzhour, sh%nzmin, sh%nzsec, sh%nzjday)
 
- 
     sh%nzmsec = 0
     sh%b = 0
     
@@ -151,17 +158,18 @@ program fwin2sac
     write(hms,'(3I2.2)') sh%nzhour, sh%nzmin, sh%nzsec
     write(clen,'(I6.6)') nsec
 
-
     do i=1, nch
       call ch2sh(ch(i), sh)
       sh%npts = sfreq(i) * nsec 
       sh%delta = 1/dble(sfreq(i))
       sh%e = (sh%npts - 1) * sh%delta
 
-      fn_sac = ymd // '__' // hms // '__' // clen // '__' // &
+      fn_sac = trim(dn) // '/' // ymd // '__' // hms // '__' // clen // '__' // &
                trim(sh%kstnm) // '__' // trim(adjustl(sh%kcmpnm)) // '__.sac'
-      
-      call sac__write(fn_sac, sh, dat(:,i)*ch(i)%conv, .true.)
+
+      if(sum(npts(:,i))>0) then
+        call sac__write(fn_sac, sh, dat(:,i)*ch(i)%conv, .true.)
+      end if
     end do
 
   end block
@@ -188,7 +196,7 @@ program fwin2sac
     sh%stla  =   ch%lat 
     sh%stlo  =   ch%lon 
     sh%stdp  = - ch%elev 
-    sh%stel  =   ch%elev
+    sh%stel  =   ch%elev  
     if( len_trim( ch%stnm ) <= 8 ) then
       sh%kstnm = trim(ch%stnm)
     else
