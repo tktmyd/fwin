@@ -79,7 +79,7 @@ program fchinf
   contains
   subroutine usage_stop()
 
-    write(error_unit,'(A)') 'fchinf.x [-f chtbl] (-c chid) (-s stnm) (-p cmpnm)'
+    write(error_unit,'(A)') 'usage:  fchinf.x  <-f chtbl> [-c chid] [-s stnm] [-p cmpnm]'
     stop
 
   end subroutine usage_stop

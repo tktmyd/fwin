@@ -28,7 +28,7 @@ program fwin2sac
     character(256) ::  fn_winlst
     logical :: is_opt
 
-    call getopt('wl', is_opt,     fn_winlst)
+    call getopt('l', is_opt, fn_winlst)
     if(.not. is_opt) call usage_stop()
     open(newunit=io, file=fn_winlst, iostat=ierr, action='read', status='old')
     if( ierr /= 0 ) error stop 'file not found: ' // trim(fn_winlst)
@@ -45,7 +45,7 @@ program fwin2sac
   !--
   block
     character(256) :: fn_chtbl
-    call getopt('ct', is_chtbl, fn_chtbl)
+    call getopt('t', is_chtbl, fn_chtbl)
     call winch__read_tbl(fn_chtbl, ch_tbl)
   end block
 
@@ -64,7 +64,7 @@ program fwin2sac
     integer :: ichid
     !--
 
-    call getopt('chid',  is_opt_ch,  chbuf)
+    call getopt('c',  is_opt_ch,  chbuf)
     call getopt('st',  is_opt_st,  stbuf)
     call getopt('cmp', is_opt_cmp, cmpbuf)
   
@@ -113,6 +113,15 @@ program fwin2sac
         end if
       end do
     end do
+
+    !! no channel table given
+    if( .not. is_chtbl ) then
+      do i=1, nch
+        ch(i)%stnm = ch(i)%achid
+        ch(i)%cmpnm = ''
+        ch(i)%conv = 1.0_real64
+      end do
+    end if
   end block
 
   !-----------------------------------------------------------------------------------------------!
@@ -160,6 +169,10 @@ program fwin2sac
   contains
 
   subroutine usage_stop()
+    character(18) :: sp1 = '                  '
+    character(9) :: sp2 = '         '
+    write(error_unit,'(A)') 'usage: fwin2sac.x <-l listfile> '
+    write(error_unit,'(A)') sp1//'[-t chtbl] [-c chids|chlist|all] [-s stnms|stlist|all] [-p cmpnm|cmplist|all]'
     stop
   end subroutine usage_stop
 

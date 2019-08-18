@@ -33,9 +33,9 @@ program fdewin_a
 
     character(80) :: fn_winlst
     character(80) :: fn_chlst
-    logical :: is_opt
+    logical :: is_opt, is_all
 
-    call getopt('wl', is_opt, fn_winlst, '' )
+    call getopt('l', is_opt, fn_winlst, '' )
 
     if( is_opt ) then
       call util__readlst( fn_winlst, nw, fn_win )
@@ -43,23 +43,20 @@ program fdewin_a
       nw = 1
       allocate( fn_win(1) )
       call getopt('w', is_opt, fn_win(1), '') 
-      if( .not. is_opt ) error stop 'No winfile given'
+      if(.not. is_opt) call usage_stop() 
     end if
     
-    call getopt('cl', is_opt, fn_chlst, '' )
+    call getopt('c', is_opt, fn_chlst, '' )
 
     if( is_opt ) then
-      call util__readlst( fn_chlst, nch, chid )
+      call util__read_arglst( fn_chlst, nch, is_all, chid )
     else
-      nch = 1
-      allocate(chid(1))
-      call getopt('c', is_opt, chid(1), '')
-      if( .not. is_opt ) error stop 'No channel given'
+      call usage_stop() 
     end if
 
     call getopt('d', is_opt, d_out, '.' ) 
 
-    call getopt('t', is_test_mode)
+    call getopt('Z', is_test_mode) 
 
   end block
   !-----------------------------------------------------------------------------------------------!
@@ -100,6 +97,15 @@ program fdewin_a
     end do
   end block
   !-----------------------------------------------------------------------------------------------!
+
+contains
+
+!-----------------------------------------------------------------------------------------------!
+  subroutine usage_stop()
+
+    write(error_unit,'(A)') 'usage:  fdewin_a.x <-l winlst|-w winfile> <-c chid|lst> [-d dir]'
+    stop
+  end subroutine usage_stop
 
 end program fdewin_a
 !-------------------------------------------------------------------------------------------------!
