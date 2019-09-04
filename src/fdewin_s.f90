@@ -21,7 +21,7 @@ program fdewin_s
   character(256), allocatable :: fn_win(:)
   character(4),   allocatable :: chid(:)
   integer,        allocatable :: dat(:,:), dat0(:,:)
-  integer,        allocatable :: npts(:,:), sfreq(:), npts_all(:)
+  integer,        allocatable :: npts(:,:), sfreq(:)
   character(80)               :: d_out
   integer, parameter          :: fsmax = 200
   logical                     :: is_test_mode

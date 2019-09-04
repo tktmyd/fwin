@@ -1,5 +1,8 @@
 # fwin
-A module for seismic waveform data in WIN and WIN32 formats
+A module for reading seismic waveform data in WIN and WIN32 formats
+
+## Important Notice
+This library is under being development. Significant changes in designs of module libraries might occur in future versions. 
 
 ## Compile
 

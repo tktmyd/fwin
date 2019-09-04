@@ -53,7 +53,7 @@ module m_win
   character(1),   save, private :: azero           !< binary image of zero in single-bit integer
 
 
-  integer, parameter :: YR_MIN = 1900
+  integer, parameter :: YR_MIN = 1913 !! avoid misreading 201912 as 1912
   integer, parameter :: YR_MAX = 2100
 
 contains
@@ -394,7 +394,7 @@ contains
       bs1 = 12
       bs2 = 15
     end if
-    
+
     n = 0
     !! obtain block locations & datetime information
     do

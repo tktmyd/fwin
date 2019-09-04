@@ -86,6 +86,8 @@ program fwin2sac
         if( is_all_st ) call winch__get_all_stnm(ch_tbl, stnm)
       call util__read_arglst(cmpbuf, ncmp, is_all_cmp, cmpnm)
         if( is_all_cmp ) call winch__get_all_cmpnm(ch_tbl, cmpnm)
+
+      nch = 0
       do i=1, size(stnm)
         do j=1, size(cmpnm)
           !try
@@ -171,14 +173,13 @@ program fwin2sac
         call sac__write(fn_sac, sh, dat(:,i)*ch(i)%conv, .true.)
       end if
     end do
-
   end block
 
   contains
 
   subroutine usage_stop()
+
     character(18) :: sp1 = '                  '
-    character(9) :: sp2 = '         '
     write(error_unit,'(A)') 'usage: fwin2sac.x <-l listfile> '
     write(error_unit,'(A)') sp1//'[-t chtbl] [-c chids|chlist|all] [-s stnms|stlist|all] [-p cmpnm|cmplist|all]'
     stop
