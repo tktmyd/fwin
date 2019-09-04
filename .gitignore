@@ -30,3 +30,14 @@
 *.exe
 *.out
 *.app
+*.x
+
+# Data files
+*.win
+*.win32
+*.cnt
+*.sac
+*.dat
+test/testdata/*
+*tmp*
+*lst
