@@ -208,7 +208,7 @@ contains
     integer, intent(in) :: tim
     integer, intent(out) :: yr, mo, dy, hr, mi, sc, jday
     integer :: dy0, sc0
-    dy0 = floor( tim / (24*60*60.) ) + 719163
+    dy0 = floor( tim / dble(24*60*60) ) + 719163
     sc0 = tim - (dy0-719163) * 24*60*60
 
     do yr=1970, 2099
