@@ -181,7 +181,8 @@ contains
       m0 = m
     end if
 
-    nd = 365*y0 + floor(y0/4.) - floor(y/100.) + floor(y/400.) + floor(306*(m0+1)/10.) + d - 428
+    nd = 365*y0 + floor(y0/4._real64) - floor(y0/100._real64) + floor(y0/400._real64) &
+      + floor(306*(m0+1)/10._real64) + d - 428
 
   end function fairfield
   !-----------------------------------------------------------------------------------------------!

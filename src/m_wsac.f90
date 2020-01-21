@@ -28,6 +28,8 @@ module m_wsac
      real(DP)      :: delta           ! sampling interval             (001)
      real(DP)      :: depmin          ! minimum value                 (002)
      real(DP)      :: depmax          ! maximum value                 (003)
+     real(DP)      :: scale           ! multiplying scale factor      (004)
+     real(DP)      :: odelta          ! Observed increment            (005)
      real(DP)      :: b               ! begenning independent value   (006)
      real(DP)      :: e               ! ending independent value      (007)
      real(DP)      :: o               ! event origin time             (008)
@@ -42,6 +44,17 @@ module m_wsac
      real(DP)      :: t7              ! time picks                    (018)
      real(DP)      :: t8              ! time picks                    (019)
      real(DP)      :: t9              ! time picks                    (020)
+     real(DP)      :: f               ! fini or end of event time     (021)
+     real(DP)      :: resp0           ! instrument response param.    (022)
+     real(DP)      :: resp1           ! instrument response param.    (023)
+     real(DP)      :: resp2           ! instrument response param.    (024)
+     real(DP)      :: resp3           ! instrument response param.    (025)
+     real(DP)      :: resp4           ! instrument response param.    (026)
+     real(DP)      :: resp5           ! instrument response param.    (027)
+     real(DP)      :: resp6           ! instrument response param.    (028)
+     real(DP)      :: resp7           ! instrument response param.    (029)
+     real(DP)      :: resp8           ! instrument response param.    (030)
+     real(DP)      :: resp9           ! instrument response param.    (031)
      real(DP)      :: stla            ! station latitude              (032)
      real(DP)      :: stlo            ! station longitude             (033)
      real(DP)      :: stel            ! station elevation (m)         (034)
@@ -67,7 +80,11 @@ module m_wsac
      real(DP)      :: gcarc           ! angular distance (deg)        (054)
      real(DP)      :: depmen          ! mean value                    (057)
      real(DP)      :: cmpaz           ! component azimuth             (058)
-     real(DP)      :: cmpinc          ! component incident angle      (059)     
+     real(DP)      :: cmpinc          ! component incident angle      (059) 
+     real(DP)      :: xminimum        ! minimum value of x (spec)     (060)    
+     real(DP)      :: xmaximum        ! maximum value of x (spec)     (061)    
+     real(DP)      :: yminimum        ! minimum value of y (spec)     (062)    
+     real(DP)      :: ymaximum        ! maximum value of y (spec)     (063)    
      integer       :: nzyear          ! reference time, year          (071)
      integer       :: nzjday          ! reference time, julian day    (072)
      integer       :: nzhour          ! reference time, hour          (073)
@@ -75,10 +92,23 @@ module m_wsac
      integer       :: nzsec           ! reference time, second        (075)
      integer       :: nzmsec          ! reference time, millisecond   (076)
      integer       :: nvhdr           ! header version                (077)
+     integer       :: norid           ! origin ID (CSS3.0)            (078)
+     integer       :: nevid           ! event ID (CSS3.0)             (079)
      integer       :: npts            ! number of data points         (080)
+     integer       :: nwfid           ! waveform ID (CSS3.0)          (082)
+     integer       :: nxsize          ! spectral length               (083)
+     integer       :: nysize          ! spectral width                (084)
      integer       :: iftype          ! type of file                  (086)
      integer       :: idep            ! type of dependent var.        (087)
+     integer       :: iztype          ! reference time equivallence   (088)
+     integer       :: iinst           ! instrument type               (090)
+     integer       :: istreg          ! station region                (091)
+     integer       :: ievreg          ! event region                  (092)
      integer       :: ievtyp          ! event type                    (093)
+     integer       :: iqual           ! data quality                  (094)
+     integer       :: isynth          ! synthetic data flag real=49   (095)
+     integer       :: imagtyp         ! magnitude type                (096)
+     integer       :: imagsrc         ! source of magnitude info.     (097)
      logical       :: leven           ! is evenly spaced file         (106)
      logical       :: lpspol          ! is positive polarity          (107)
      logical       :: lovrok          ! is overwrite ok?              (108)
@@ -251,55 +281,72 @@ contains
 
     ! Copy header data to temprary arrays
     fheader(  1) = real( int( ss % delta * 1d7 ) ) / 1e7
-    fheader(  2) = real( ss % depmin )
-    fheader(  3) = real( ss % depmax )
-    fheader(  6) = real( ss % b      )
-    fheader(  7) = real( ss % e      )
-    fheader(  8) = real( ss % o      )
-    fheader(  9) = real( ss % a      )
-    fheader( 11) = real( ss % t0     )
-    fheader( 12) = real( ss % t1     )
-    fheader( 13) = real( ss % t2     )
-    fheader( 14) = real( ss % t3     )
-    fheader( 15) = real( ss % t4     )
-    fheader( 16) = real( ss % t5     )
-    fheader( 17) = real( ss % t6     )
-    fheader( 18) = real( ss % t7     )
-    fheader( 19) = real( ss % t8     )
-    fheader( 20) = real( ss % t9     )
-    fheader( 32) = real( ss % stla   )
-    fheader( 33) = real( ss % stlo   )
-    fheader( 34) = real( ss % stel   )
-    fheader( 35) = real( ss % stdp   )
-    fheader( 36) = real( ss % evla   )
-    fheader( 37) = real( ss % evlo   )
-    fheader( 38) = real( ss % evel   )
-    fheader( 39) = real( ss % evdp   )
-    fheader( 40) = real( ss % mag    )
-    fheader( 41) = real( ss % user0  )
-    fheader( 42) = real( ss % user1  )
-    fheader( 43) = real( ss % user2  )
-    fheader( 44) = real( ss % user3  )
-    fheader( 45) = real( ss % user4  )
-    fheader( 46) = real( ss % user5  )
-    fheader( 47) = real( ss % user6  )
-    fheader( 48) = real( ss % user7  )
-    fheader( 49) = real( ss % user8  )
-    fheader( 50) = real( ss % user9  )
-    fheader( 51) = real( ss % dist   )
-    fheader( 52) = real( ss % az     )
-    fheader( 53) = real( ss % baz    )
-    fheader( 54) = real( ss % gcarc  )
-    fheader( 57) = real( ss % depmen )
-    fheader( 58) = real( ss % cmpaz  )
-    fheader( 59) = real( ss % cmpinc )
-    fheader( 64) = real( ss % user10 )
-    fheader( 65) = real( ss % user11 )
-    fheader( 66) = real( ss % user12 )
-    fheader( 67) = real( ss % user13 )
-    fheader( 68) = real( ss % user14 )
-    fheader( 69) = real( ss % user15 )
-    fheader( 70) = real( ss % user16 )
+    fheader(  2) = real( ss % depmin   )
+    fheader(  3) = real( ss % depmax   )
+    fheader(  4) = real( ss % scale    )
+    fheader(  5) = real( ss % odelta   )
+    fheader(  6) = real( ss % b        )
+    fheader(  7) = real( ss % e        )
+    fheader(  8) = real( ss % o        )
+    fheader(  9) = real( ss % a        )
+    fheader( 11) = real( ss % t0       )
+    fheader( 12) = real( ss % t1       )
+    fheader( 13) = real( ss % t2       )
+    fheader( 14) = real( ss % t3       )
+    fheader( 15) = real( ss % t4       )
+    fheader( 16) = real( ss % t5       )
+    fheader( 17) = real( ss % t6       )
+    fheader( 18) = real( ss % t7       )
+    fheader( 19) = real( ss % t8       )
+    fheader( 20) = real( ss % t9       )
+    fheader( 21) = real( ss % f        )
+    fheader( 22) = real( ss % resp0    )
+    fheader( 23) = real( ss % resp1    )
+    fheader( 24) = real( ss % resp2    )
+    fheader( 25) = real( ss % resp3    )
+    fheader( 26) = real( ss % resp4    )
+    fheader( 27) = real( ss % resp5    )
+    fheader( 28) = real( ss % resp6    )
+    fheader( 29) = real( ss % resp7    )
+    fheader( 30) = real( ss % resp8    )
+    fheader( 31) = real( ss % resp9    )
+    fheader( 32) = real( ss % stla     )
+    fheader( 33) = real( ss % stlo     )
+    fheader( 34) = real( ss % stel     )
+    fheader( 35) = real( ss % stdp     )
+    fheader( 36) = real( ss % evla     )
+    fheader( 37) = real( ss % evlo     )
+    fheader( 38) = real( ss % evel     )
+    fheader( 39) = real( ss % evdp     )
+    fheader( 40) = real( ss % mag      )
+    fheader( 41) = real( ss % user0    )
+    fheader( 42) = real( ss % user1    )
+    fheader( 43) = real( ss % user2    )
+    fheader( 44) = real( ss % user3    )
+    fheader( 45) = real( ss % user4    )
+    fheader( 46) = real( ss % user5    )
+    fheader( 47) = real( ss % user6    )
+    fheader( 48) = real( ss % user7    )
+    fheader( 49) = real( ss % user8    )
+    fheader( 50) = real( ss % user9    )
+    fheader( 51) = real( ss % dist     )
+    fheader( 52) = real( ss % az       )
+    fheader( 53) = real( ss % baz      )
+    fheader( 54) = real( ss % gcarc    )
+    fheader( 57) = real( ss % depmen   )
+    fheader( 58) = real( ss % cmpaz    )
+    fheader( 59) = real( ss % cmpinc   )
+    fheader( 60) = real( ss % xminimum )
+    fheader( 61) = real( ss % xmaximum )
+    fheader( 62) = real( ss % yminimum )
+    fheader( 63) = real( ss % ymaximum )
+    fheader( 64) = real( ss % user10   )
+    fheader( 65) = real( ss % user11   )
+    fheader( 66) = real( ss % user12   )
+    fheader( 67) = real( ss % user13   )
+    fheader( 68) = real( ss % user14   )
+    fheader( 69) = real( ss % user15   )
+    fheader( 70) = real( ss % user16   )
     
     iheader( 71) = ss % nzyear
     iheader( 72) = ss % nzjday
@@ -308,11 +355,24 @@ contains
     iheader( 75) = ss % nzsec
     iheader( 76) = ss % nzmsec
     iheader( 77) = ss % nvhdr
+    iheader( 78) = ss % norid
+    iheader( 79) = ss % nevid
     iheader( 80) = ss % npts
+    iheader( 82) = ss % nwfid
+    iheader( 83) = ss % nxsize
+    iheader( 84) = ss % nysize
     iheader( 86) = ss % iftype
     iheader( 87) = ss % idep
+    iheader( 88) = ss % iztype
+    iheader( 90) = ss % iinst
+    iheader( 91) = ss % istreg
+    iheader( 92) = ss % ievreg
     iheader( 93) = ss % ievtyp
-    
+    iheader( 94) = ss % iqual
+    iheader( 95) = ss % isynth
+    iheader( 96) = ss % imagtyp
+    iheader( 97) = ss % imagsrc
+
     iheader( 98) = ss % iuser0
     iheader( 99) = ss % iuser1
     iheader(100) = ss % iuser2
@@ -374,109 +434,140 @@ contains
     character(6) :: cerr = '-12345'
     !----
     
-    ss%delta   = ferr
-    ss%depmin  = ferr
-    ss%depmax  = ferr
-    ss%b       = ferr
-    ss%e       = ferr
-    ss%o       = ferr
-    ss%a       = ferr
-    ss%t0      = ferr
-    ss%t1      = ferr
-    ss%t2      = ferr
-    ss%t3      = ferr
-    ss%t4      = ferr
-    ss%t5      = ferr
-    ss%t6      = ferr
-    ss%t7      = ferr
-    ss%t8      = ferr
-    ss%t9      = ferr
-    ss%stla    = ferr
-    ss%stlo    = ferr
-    ss%stel    = ferr
-    ss%stdp    = ferr
-    ss%evla    = ferr
-    ss%evlo    = ferr
-    ss%evel    = ferr
-    ss%evdp    = ferr
-    ss%mag     = ferr
-    ss%user0   = ferr
-    ss%user1   = ferr
-    ss%user2   = ferr
-    ss%user3   = ferr
-    ss%user4   = ferr
-    ss%user5   = ferr
-    ss%user6   = ferr
-    ss%user7   = ferr
-    ss%user8   = ferr
-    ss%user9   = ferr
-    ss%dist    = ferr
-    ss%az      = ferr
-    ss%baz     = ferr
-    ss%gcarc   = ferr
-    ss%depmen  = ferr
-    ss%cmpaz   = ferr
-    ss%cmpinc  = ferr
-    ss%nzyear  = ierr
-    ss%nzjday  = ierr
-    ss%nzhour  = ierr
-    ss%nzmin   = ierr
-    ss%nzsec   = ierr
-    ss%nzmsec  = ierr
-    ss%nvhdr   = 6
-    ss%npts    = ierr
-    ss%iftype  = 01
-    ss%ievtyp  = ierr
-    ss%idep    = ierr
-    ss%leven   = .true.
-    ss%lpspol  = .false.
-    ss%lovrok  = .true.
-    ss%lcalda  = .true.
-    ss%kstnm   = cerr
-    ss%kcmpnm  = cerr
-    ss%kevnm   = cerr
-    ss%khole   = cerr
-    ss%ko      = cerr
-    ss%ka      = cerr
-    ss%kt0     = cerr
-    ss%kt1     = cerr
-    ss%kt2     = cerr
-    ss%kt3     = cerr
-    ss%kt4     = cerr
-    ss%kt5     = cerr
-    ss%kt6     = cerr
-    ss%kt7     = cerr
-    ss%kt8     = cerr
-    ss%kt9     = cerr
-    ss%kf      = cerr
-    ss%kuser0  = cerr
-    ss%kuser1  = cerr
-    ss%kuser2  = cerr
-    ss%knetwk  = cerr
-    ss%kdatrd  = cerr
-    ss%kinst   = cerr
+    ss%delta    = ferr
+    ss%depmin   = ferr
+    ss%depmax   = ferr
+    ss%scale    = ferr
+    ss%odelta   = ferr
+    ss%b        = ferr
+    ss%e        = ferr
+    ss%o        = ferr
+    ss%a        = ferr
+    ss%t0       = ferr
+    ss%t1       = ferr
+    ss%t2       = ferr
+    ss%t3       = ferr
+    ss%t4       = ferr
+    ss%t5       = ferr
+    ss%t6       = ferr
+    ss%t7       = ferr
+    ss%t8       = ferr
+    ss%t9       = ferr
+    ss%f        = ferr
+    ss%resp0    = ferr
+    ss%resp1    = ferr
+    ss%resp2    = ferr
+    ss%resp3    = ferr
+    ss%resp4    = ferr
+    ss%resp5    = ferr
+    ss%resp6    = ferr
+    ss%resp7    = ferr
+    ss%resp8    = ferr
+    ss%resp9    = ferr
+    ss%stla     = ferr
+    ss%stlo     = ferr
+    ss%stel     = ferr
+    ss%stdp     = ferr
+    ss%evla     = ferr
+    ss%evlo     = ferr
+    ss%evel     = ferr
+    ss%evdp     = ferr
+    ss%mag      = ferr
+    ss%user0    = ferr
+    ss%user1    = ferr
+    ss%user2    = ferr
+    ss%user3    = ferr
+    ss%user4    = ferr
+    ss%user5    = ferr
+    ss%user6    = ferr
+    ss%user7    = ferr
+    ss%user8    = ferr
+    ss%user9    = ferr
+    ss%dist     = ferr
+    ss%az       = ferr
+    ss%baz      = ferr
+    ss%gcarc    = ferr
+    ss%depmen   = ferr
+    ss%cmpaz    = ferr
+    ss%cmpinc   = ferr
+    ss%xminimum = ferr
+    ss%xmaximum = ferr
+    ss%yminimum = ferr
+    ss%ymaximum = ferr
+    ss%nzyear   = ierr
+    ss%nzjday   = ierr
+    ss%nzhour   = ierr
+    ss%nzmin    = ierr
+    ss%nzsec    = ierr
+    ss%nzmsec   = ierr
+    ss%nvhdr    = 6 ! header version
+    ss%norid    = ierr
+    ss%nevid    = ierr
+    ss%npts     = ierr
+    ss%nwfid    = ierr
+    ss%nxsize   = ierr
+    ss%nysize   = ierr
+    ss%iftype   = 1 ! time series file
+    ss%idep     = ierr
+    ss%iztype   = ierr
+    ss%iinst    = ierr
+    ss%istreg   = ierr
+    ss%ievreg   = ierr
+    ss%ievtyp   = ierr
+    ss%iqual    = ierr
+    ss%isynth   = ierr
+    ss%imagtyp  = ierr
+    ss%imagsrc  = ierr
+    ss%leven    = .true.
+    ss%lpspol   = .false.
+    ss%lovrok   = .true.
+    ss%lcalda   = .true.
+    ss%kstnm    = cerr
+    ss%kcmpnm   = cerr
+    ss%kevnm    = cerr
+    ss%khole    = cerr
+    ss%ko       = cerr
+    ss%ka       = cerr
+    ss%kt0      = cerr
+    ss%kt1      = cerr
+    ss%kt2      = cerr
+    ss%kt3      = cerr
+    ss%kt4      = cerr
+    ss%kt5      = cerr
+    ss%kt6      = cerr
+    ss%kt7      = cerr
+    ss%kt8      = cerr
+    ss%kt9      = cerr
+    ss%kf       = cerr
+    ss%kuser0   = cerr
+    ss%kuser1   = cerr
+    ss%kuser2   = cerr
+    ss%knetwk   = cerr
+    ss%kdatrd   = cerr
+    ss%kinst    = cerr
     
-    ss%nzmonth = ierr
-    ss%nzday   = ierr
-    ss%tim     = ierr
+    !! unoficial headers
+    ss%user10   = ferr
+    ss%user11   = ferr
+    ss%user12   = ferr
+    ss%user13   = ferr
+    ss%user14   = ferr
+    ss%user15   = ferr
+    ss%user16   = ferr
+    ss%iuser0   = ierr
+    ss%iuser1   = ierr
+    ss%iuser2   = ierr
+    ss%iuser3   = ierr
+    ss%iuser4   = ierr
+    ss%iuser5   = ierr
+    ss%iuser6   = ierr
+    ss%iuser7   = ierr
+    ss%luser0   = .false.
 
-    !! inoficial headers
-    ss%user10 = ferr
-    ss%user11 = ferr
-    ss%user12 = ferr
-    ss%user13 = ferr
-    ss%user14 = ferr
-    ss%user15 = ferr
-    ss%user16 = ferr
-    ss%iuser0 = ierr
-    ss%iuser1 = ierr
-    ss%iuser2 = ierr
-    ss%iuser3 = ierr
-    ss%iuser4 = ierr
-    ss%iuser5 = ierr
-    ss%iuser6 = ierr
-    ss%iuser7 = ierr
-    ss%luser0 = .false.
+    !! fortran-only headers
+    ss%nzmonth  = ierr
+    ss%nzday    = ierr
+    ss%tim      = ierr
 
   end subroutine sac__init
   !----------------------------------------------------------------------------------------------
