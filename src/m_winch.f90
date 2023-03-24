@@ -2,7 +2,7 @@
 !> WIN/WIN32 Channel Table
 !!
 !! @copyright
-!! Copyright (c) 2019 Takuto Maeda. All rights reserved. 
+!! Copyright (c) 2020 Takuto Maeda. All rights reserved. 
 !!
 !! @license 
 !! This software is released under the MIT license. See LICENSE for details. 
@@ -10,7 +10,6 @@
 module m_winch
 
   use, intrinsic :: iso_fortran_env
-  use m_win
   implicit none
 
   public :: winch__hdr
@@ -60,7 +59,6 @@ contains
     wch%conv     = -12345.0_real64
 
   end subroutine winch__init
-  !----------------------------------------------------------------------------------------------!
 
   !----------------------------------------------------------------------------------------------!
   !> Read the spacified channel table file
@@ -97,7 +95,7 @@ contains
 
        call winch__init(wch0)
 
-       ich = win__ach2ich(line(1:4))
+       ich = ach2ich(line(1:4))
 
        ! store the channel information
        wch0 % ichid = ich
@@ -184,7 +182,6 @@ contains
     end subroutine readline_integer
 
   end subroutine winch__read_tbl
-  !----------------------------------------------------------------------------------------------!
 
   !----------------------------------------------------------------------------------------------!
   !> Return all channel IDs in the list
@@ -202,13 +199,15 @@ contains
   !----------------------------------------------------------------------------------------------!
   !> Return all station names in the channel list without duplications
   !--
-  subroutine winch__get_all_stnm(wch, stnm)
+  subroutine winch__get_all_stnm(wch, stnm, stlo, stla)
     
     type(winch__hdr), intent(in) :: wch(:)
     character(*), intent(out), allocatable :: stnm(:)
+    real(real64), optional, intent(out), allocatable :: stlo(:), stla(:)
     !--
     integer :: i, j
     character(len(stnm)) :: stnm0
+    real(real64) :: lon0, lat0
     logical :: found
     integer :: nch, nst
     !----
@@ -226,9 +225,16 @@ contains
         nst = 1
         allocate(stnm(nst))
         stnm(nst) = trim(adjustl(wch(i)%stnm))
+        if( present(stlo) .and. present(stla) ) then
+          allocate(stlo(nst), stla(nst))
+          stlo(nst) = wch(i)%lon
+          stla(nst) = wch(i)%lat
+        end if
       end if
 
       stnm0 = trim(adjustl(wch(i)%stnm))
+      lon0 = wch(i)%lon
+      lat0 = wch(i)%lat
       found = .false.
 
       do j=1, nst
@@ -239,12 +245,15 @@ contains
       if( .not. found ) then
         nst = nst + 1
         stnm = [stnm, stnm0] !! expand the array
+        if( present(stlo) .and. present(stla) ) then
+          stlo = [stlo, lon0]
+          stla = [stla, lat0]
+        end if
       end if
 
     end do
     
   end subroutine winch__get_all_stnm
-  !----------------------------------------------------------------------------------------------!
 
   !----------------------------------------------------------------------------------------------!
   !> Return all station names in the channel list without duplications
@@ -291,8 +300,6 @@ contains
     end do
     
   end subroutine winch__get_all_cmpnm
-  !----------------------------------------------------------------------------------------------!
-
 
   !----------------------------------------------------------------------------------------------!
   !> Return channel ID corresponding to given station and component name
@@ -324,8 +331,19 @@ contains
     return
 
   end subroutine winch__st2chid
-  !----------------------------------------------------------------------------------------------!  
 
+  !----------------------------------------------------------------------------------------------!
+  !> Convert ascii channel ID to integer
+  !--
+  function ach2ich( achid ) result(chid)
+    
+    character(4), intent(in) :: achid
+    !--
+    integer(int16) :: chid
+    !----
+
+    read(achid,'(Z4)') chid
+
+  end function ach2ich
  
 end module m_winch
-!-------------------------------------------------------------------------------------------------!

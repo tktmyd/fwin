@@ -25,66 +25,66 @@ module m_wsac
   type sac__hdr
      
      !!               var name          description                   record#
-     real(DP)      :: delta           ! sampling interval             (001)
-     real(DP)      :: depmin          ! minimum value                 (002)
-     real(DP)      :: depmax          ! maximum value                 (003)
-     real(DP)      :: scale           ! multiplying scale factor      (004)
-     real(DP)      :: odelta          ! Observed increment            (005)
-     real(DP)      :: b               ! begenning independent value   (006)
-     real(DP)      :: e               ! ending independent value      (007)
-     real(DP)      :: o               ! event origin time             (008)
-     real(DP)      :: a               ! first arrival time            (009)
-     real(DP)      :: t0              ! time picks                    (011)
-     real(DP)      :: t1              ! time picks                    (012)
-     real(DP)      :: t2              ! time picks                    (013)
-     real(DP)      :: t3              ! time picks                    (014)
-     real(DP)      :: t4              ! time picks                    (015)
-     real(DP)      :: t5              ! time picks                    (016)
-     real(DP)      :: t6              ! time picks                    (017)
-     real(DP)      :: t7              ! time picks                    (018)
-     real(DP)      :: t8              ! time picks                    (019)
-     real(DP)      :: t9              ! time picks                    (020)
-     real(DP)      :: f               ! fini or end of event time     (021)
-     real(DP)      :: resp0           ! instrument response param.    (022)
-     real(DP)      :: resp1           ! instrument response param.    (023)
-     real(DP)      :: resp2           ! instrument response param.    (024)
-     real(DP)      :: resp3           ! instrument response param.    (025)
-     real(DP)      :: resp4           ! instrument response param.    (026)
-     real(DP)      :: resp5           ! instrument response param.    (027)
-     real(DP)      :: resp6           ! instrument response param.    (028)
-     real(DP)      :: resp7           ! instrument response param.    (029)
-     real(DP)      :: resp8           ! instrument response param.    (030)
-     real(DP)      :: resp9           ! instrument response param.    (031)
-     real(DP)      :: stla            ! station latitude              (032)
-     real(DP)      :: stlo            ! station longitude             (033)
-     real(DP)      :: stel            ! station elevation (m)         (034)
-     real(DP)      :: stdp            ! station depth (m)             (035)
-     real(DP)      :: evla            ! event latitude                (036)
-     real(DP)      :: evlo            ! event longitude               (037)
-     real(DP)      :: evel            ! event elevation (m)           (038)
-     real(DP)      :: evdp            ! event depth (m)               (039)
-     real(DP)      :: mag             ! event magnitude               (040)
-     real(DP)      :: user0           ! user header                   (041)
-     real(DP)      :: user1           ! user header                   (042)
-     real(DP)      :: user2           ! user header                   (043)
-     real(DP)      :: user3           ! user header                   (044)
-     real(DP)      :: user4           ! user header                   (045)
-     real(DP)      :: user5           ! user header                   (046)
-     real(DP)      :: user6           ! user header                   (047)
-     real(DP)      :: user7           ! user header                   (048)
-     real(DP)      :: user8           ! user header                   (049)
-     real(DP)      :: user9           ! user header                   (050)
-     real(DP)      :: dist            ! distance (km)                 (051)
-     real(DP)      :: az              ! azimuth (deg)                 (052)
-     real(DP)      :: baz             ! back azimuth (deg)            (053)
-     real(DP)      :: gcarc           ! angular distance (deg)        (054)
-     real(DP)      :: depmen          ! mean value                    (057)
-     real(DP)      :: cmpaz           ! component azimuth             (058)
-     real(DP)      :: cmpinc          ! component incident angle      (059) 
-     real(DP)      :: xminimum        ! minimum value of x (spec)     (060)    
-     real(DP)      :: xmaximum        ! maximum value of x (spec)     (061)    
-     real(DP)      :: yminimum        ! minimum value of y (spec)     (062)    
-     real(DP)      :: ymaximum        ! maximum value of y (spec)     (063)    
+     real(dp)      :: delta           ! sampling interval             (001)
+     real(dp)      :: depmin          ! minimum value                 (002)
+     real(dp)      :: depmax          ! maximum value                 (003)
+     real(dp)      :: scale           ! multiplying scale factor      (004)
+     real(dp)      :: odelta          ! Observed increment            (005)
+     real(dp)      :: b               ! begenning independent value   (006)
+     real(dp)      :: e               ! ending independent value      (007)
+     real(dp)      :: o               ! event origin time             (008)
+     real(dp)      :: a               ! first arrival time            (009)
+     real(dp)      :: t0              ! time picks                    (011)
+     real(dp)      :: t1              ! time picks                    (012)
+     real(dp)      :: t2              ! time picks                    (013)
+     real(dp)      :: t3              ! time picks                    (014)
+     real(dp)      :: t4              ! time picks                    (015)
+     real(dp)      :: t5              ! time picks                    (016)
+     real(dp)      :: t6              ! time picks                    (017)
+     real(dp)      :: t7              ! time picks                    (018)
+     real(dp)      :: t8              ! time picks                    (019)
+     real(dp)      :: t9              ! time picks                    (020)
+     real(dp)      :: f               ! fini or end of event time     (021)
+     real(dp)      :: resp0           ! instrument response param.    (022)
+     real(dp)      :: resp1           ! instrument response param.    (023)
+     real(dp)      :: resp2           ! instrument response param.    (024)
+     real(dp)      :: resp3           ! instrument response param.    (025)
+     real(dp)      :: resp4           ! instrument response param.    (026)
+     real(dp)      :: resp5           ! instrument response param.    (027)
+     real(dp)      :: resp6           ! instrument response param.    (028)
+     real(dp)      :: resp7           ! instrument response param.    (029)
+     real(dp)      :: resp8           ! instrument response param.    (030)
+     real(dp)      :: resp9           ! instrument response param.    (031)
+     real(dp)      :: stla            ! station latitude              (032)
+     real(dp)      :: stlo            ! station longitude             (033)
+     real(dp)      :: stel            ! station elevation (m)         (034)
+     real(dp)      :: stdp            ! station depth (m)             (035)
+     real(dp)      :: evla            ! event latitude                (036)
+     real(dp)      :: evlo            ! event longitude               (037)
+     real(dp)      :: evel            ! event elevation (m)           (038)
+     real(dp)      :: evdp            ! event depth (m)               (039)
+     real(dp)      :: mag             ! event magnitude               (040)
+     real(dp)      :: user0           ! user header                   (041)
+     real(dp)      :: user1           ! user header                   (042)
+     real(dp)      :: user2           ! user header                   (043)
+     real(dp)      :: user3           ! user header                   (044)
+     real(dp)      :: user4           ! user header                   (045)
+     real(dp)      :: user5           ! user header                   (046)
+     real(dp)      :: user6           ! user header                   (047)
+     real(dp)      :: user7           ! user header                   (048)
+     real(dp)      :: user8           ! user header                   (049)
+     real(dp)      :: user9           ! user header                   (050)
+     real(dp)      :: dist            ! distance (km)                 (051)
+     real(dp)      :: az              ! azimuth (deg)                 (052)
+     real(dp)      :: baz             ! back azimuth (deg)            (053)
+     real(dp)      :: gcarc           ! angular distance (deg)        (054)
+     real(dp)      :: depmen          ! mean value                    (057)
+     real(dp)      :: cmpaz           ! component azimuth             (058)
+     real(dp)      :: cmpinc          ! component incident angle      (059) 
+     real(dp)      :: xminimum        ! minimum value of x (spec)     (060)    
+     real(dp)      :: xmaximum        ! maximum value of x (spec)     (061)    
+     real(dp)      :: yminimum        ! minimum value of y (spec)     (062)    
+     real(dp)      :: ymaximum        ! maximum value of y (spec)     (063)    
      integer       :: nzyear          ! reference time, year          (071)
      integer       :: nzjday          ! reference time, julian day    (072)
      integer       :: nzhour          ! reference time, hour          (073)
@@ -136,24 +136,6 @@ module m_wsac
      character(8)  :: knetwk          ! network name                  (153)
      character(8)  :: kdatrd          ! date data onto comp.          (155)
      character(8)  :: kinst           ! instrument                    (157)
-
-     !! Unofficial header at unused blocks
-     real(DP) :: user10 ! user header (064)
-     real(DP) :: user11 ! user header (065)
-     real(DP) :: user12 ! user header (066)
-     real(DP) :: user13 ! user header (067)
-     real(DP) :: user14 ! user header (068)
-     real(DP) :: user15 ! user header (069)
-     real(DP) :: user16 ! user header (070)
-     integer  :: iuser0 ! user header (098)
-     integer  :: iuser1 ! user header (099)
-     integer  :: iuser2 ! user header (100)
-     integer  :: iuser3 ! user header (101)
-     integer  :: iuser4 ! user header (102)
-     integer  :: iuser5 ! user header (103)
-     integer  :: iuser6 ! user header (104)
-     integer  :: iuser7 ! user header (105)
-     logical  :: luser0 ! user header (110)
 
      !! associated information from sac header
      integer :: nzmonth ! month of begin time from nzjday
@@ -340,13 +322,6 @@ contains
     fheader( 61) = real( ss % xmaximum )
     fheader( 62) = real( ss % yminimum )
     fheader( 63) = real( ss % ymaximum )
-    fheader( 64) = real( ss % user10   )
-    fheader( 65) = real( ss % user11   )
-    fheader( 66) = real( ss % user12   )
-    fheader( 67) = real( ss % user13   )
-    fheader( 68) = real( ss % user14   )
-    fheader( 69) = real( ss % user15   )
-    fheader( 70) = real( ss % user16   )
     
     iheader( 71) = ss % nzyear
     iheader( 72) = ss % nzjday
@@ -373,22 +348,12 @@ contains
     iheader( 96) = ss % imagtyp
     iheader( 97) = ss % imagsrc
 
-    iheader( 98) = ss % iuser0
-    iheader( 99) = ss % iuser1
-    iheader(100) = ss % iuser2
-    iheader(101) = ss % iuser3
-    iheader(102) = ss % iuser4
-    iheader(103) = ss % iuser5
-    iheader(104) = ss % iuser6
-    iheader(105) = ss % iuser7
-    
+ 
     lheader(106) = ss % leven
     lheader(107) = ss % lpspol
     lheader(108) = ss % lovrok
     lheader(109) = ss % lcalda
     
-    lheader(110) = ss % luser0
-
     aheader(111) = ss%kstnm(1:4);  aheader(112) = ss%kstnm(5:8)
     aheader(113) = ss%kevnm(1:4);  aheader(114) = ss%kevnm(5:8)
     aheader(115) = ss%kevnm(9:12); aheader(116) = ss%kevnm(13:16)
@@ -545,24 +510,6 @@ contains
     ss%knetwk   = cerr
     ss%kdatrd   = cerr
     ss%kinst    = cerr
-    
-    !! unoficial headers
-    ss%user10   = ferr
-    ss%user11   = ferr
-    ss%user12   = ferr
-    ss%user13   = ferr
-    ss%user14   = ferr
-    ss%user15   = ferr
-    ss%user16   = ferr
-    ss%iuser0   = ierr
-    ss%iuser1   = ierr
-    ss%iuser2   = ierr
-    ss%iuser3   = ierr
-    ss%iuser4   = ierr
-    ss%iuser5   = ierr
-    ss%iuser6   = ierr
-    ss%iuser7   = ierr
-    ss%luser0   = .false.
 
     !! fortran-only headers
     ss%nzmonth  = ierr
