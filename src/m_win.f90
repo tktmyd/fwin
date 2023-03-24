@@ -343,7 +343,6 @@ contains
     type(win__hdr), intent(inout) :: wh     !< win header
     character,      intent(in)    :: buf(:) !< buffer
     !--
-    integer(int16) :: idb
     integer :: sz_block
     integer, allocatable :: pb(:)  !! address of second blocks
     integer :: nb_buf
@@ -367,7 +366,7 @@ contains
     allocate( pb(nb_buf), yr(nb_buf), mo(nb_buf), dy(nb_buf), hr(nb_buf), mi(nb_buf), sc(nb_buf) )
     
     !! file type check: assume win32-type and evaluate if date & time are valid
-    ichk = int( transfer(buf(1:2), idb) )
+    ichk = int( transfer(buf(1:4), ichk) )
     call decode_datetime(32, buf(5:12), yr_32, mo_32, dy_32, hr_32, mi_32, sc_32)
     if( YR_MIN <= yr_32 .and. yr_32 <= YR_MAX .and. &
              1 <= mo_32 .and. mo_32 <= 12     .and. &
@@ -416,8 +415,14 @@ contains
       end if
       
       !! expand buffer memory if necessary
-      if( n == nb_buf ) then
-        call expand_i( pb, nb_buf )
+      if( n == nb_buf - 1) then
+        nb_buf = size(pb); call expand_i( pb, nb_buf )
+        nb_buf = size(yr); call expand_i( yr, nb_buf )
+        nb_buf = size(mo); call expand_i( mo, nb_buf )
+        nb_buf = size(dy); call expand_i( dy, nb_buf )
+        nb_buf = size(hr); call expand_i( hr, nb_buf )
+        nb_buf = size(mi); call expand_i( mi, nb_buf )
+        nb_buf = size(sc); call expand_i( sc, nb_buf )
       end if
       
     end do
