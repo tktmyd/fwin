@@ -11,7 +11,6 @@
 module m_getopt
 
   use iso_fortran_env
-  use m_system
   implicit none
   private
 
@@ -57,11 +56,11 @@ contains
     character(256) :: optkey
     !----
 
-    narg = system__iargc()
+    narg = command_argument_count()
     allocate( argv(1:narg) )
     
     do i=1, narg
-       call system__getarg( i, argv(i)(:) )
+       call get_command_argument( i, argv(i)(:) )
     end do
     
     if( present( val ) ) then
