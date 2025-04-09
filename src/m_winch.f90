@@ -2,7 +2,7 @@
 !> WIN/WIN32 Channel Table
 !!
 !! @copyright
-!! Copyright (c) 2020 Takuto Maeda. All rights reserved. 
+!! Copyright (c) 2020-2025 Takuto Maeda. All rights reserved. 
 !!
 !! @license 
 !! This software is released under the MIT license. See LICENSE for details. 

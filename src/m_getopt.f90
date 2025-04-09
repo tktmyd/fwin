@@ -2,7 +2,7 @@
 !> Processig command line option
 !!
 !! @copyright
-!! Copyright (c) 2019 Takuto Maeda. All rights reserved. 
+!! Copyright (c) 2019-2025 Takuto Maeda. All rights reserved. 
 !!
 !! @license 
 !! This software is released under the MIT license. See LICENSE for details. 
