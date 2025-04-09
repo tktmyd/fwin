@@ -2,7 +2,7 @@
 !> Read Win/Win32-formatted seismograph data
 !!
 !! @copyright
-!! Copyright (c) 2019 Takuto Maeda. All rights reserved. 
+!! Copyright (c) 2019-2025 Takuto Maeda. All rights reserved. 
 !!
 !! @license 
 !! This software is released under the MIT license. See LICENSE for details. 
@@ -64,13 +64,13 @@ contains
   !--
   subroutine win__read_file(fn_win, chid, sfreq, nsec, tim, dat, npts)
 
-    character(*), intent(in)  :: fn_win
-    character(4), intent(in)  :: chid(:)
-    integer,      intent(out) :: sfreq(:)
-    integer,      intent(out) :: nsec
-    integer,      intent(out) :: tim
-    integer,      intent(out), allocatable :: dat(:,:)
-    integer,      intent(out), allocatable :: npts(:,:)
+    character(*), intent(in)  :: fn_win                 !< win/win32 filename
+    character(4), intent(in)  :: chid(:)                !< list of channel IDs to read
+    integer,      intent(out) :: sfreq(:)               !< sampling frequency of output data
+    integer,      intent(out) :: nsec                   !< number of seconds 
+    integer,      intent(out) :: tim                    !< starting time in POSIX format 
+    integer,      intent(out), allocatable :: dat(:,:)  !< waveform data in integers
+    integer,      intent(out), allocatable :: npts(:,:) !< number of data samples at each seconds
     !--
     integer :: io_win
     integer :: j
@@ -113,13 +113,13 @@ contains
   !--
   subroutine win__read_files(fn_win, chid, sfreq, nsec, tim, dat, npts)
     
-    character(*), intent(in)  :: fn_win(:)
-    character(4), intent(in)  :: chid(:)
-    integer,      intent(out) :: sfreq(:)
-    integer,      intent(out) :: nsec        !< number of seconds
-    integer,      intent(out) :: tim         !< Unix (POSIX) time of the head of the first file
-    integer,      intent(out), allocatable :: dat(:,:)
-    integer,      intent(out), allocatable :: npts(:,:)
+    character(*), intent(in)  :: fn_win(:)              !< list of win/win32 filenames
+    character(4), intent(in)  :: chid(:)                !< list of channel IDs to read
+    integer,      intent(out) :: sfreq(:)               !< sampling frequency of output data
+    integer,      intent(out) :: nsec                   !< number of seconds
+    integer,      intent(out) :: tim                    !< starting time in POSIX format 
+    integer,      intent(out), allocatable :: dat(:,:)  !< waveform data in integers
+    integer,      intent(out), allocatable :: npts(:,:) !< number of data samples at each seconds
     !--
     integer :: nw
     type(win__hdr) :: wh1, wh2
@@ -259,7 +259,7 @@ contains
   !----------------------------------------------------------------------------------------------!
 
   !----------------------------------------------------------------------------------------------!
-  !> initialize module
+  !> initialize the module
   !--
   subroutine win__init()
 
@@ -541,10 +541,12 @@ contains
     integer :: dbuf(NS_MAX,nch)
     integer :: ich
     integer(int16) :: ichid(nch)
-    integer :: chid_tbl(-32768:32767)
+    integer, save, allocatable :: chid_tbl(:)
     integer :: i
     integer :: sfreq_max
     !----
+
+    if( .not. allocated(chid_tbl) ) allocate( chid_tbl(-32768:32767) )
 
     !! initialize module
     if( .not. initialized ) call win__init()
@@ -720,31 +722,6 @@ contains
 
   end subroutine expand_dat
   !----------------------------------------------------------------------------------------------!    
-  !----------------------------------------------------------------------------------------------!    
-  !> memory size change dat(npts0,nch) -> dat(npts1,nch)
-  !--
-  subroutine expand_rdat(dat, nch, npts0, npts1)
-    
-    real, intent(inout), allocatable :: dat(:,:)
-    integer, intent(in)              :: nch, npts0, npts1
-    !--
-    real, allocatable :: dtmp(:,:)
-    !----
-
-    if( size(dat, dim=1) /= npts0 ) then
-      write(error_unit,*) '[expand_dat]: size mismatch'
-      return
-    end if
-    allocate(dtmp(npts0,nch))
-    dtmp(:,:) = dat(:,:)
-    deallocate(dat)
-    allocate(dat(npts1,nch))
-    dat(1:npts0,:) = dtmp(:,:)
-    dat(npts0+1:npts1,:) = 0
-    deallocate(dtmp)
-
-  end subroutine expand_rdat
-  !----------------------------------------------------------------------------------------------!      
   !----------------------------------------------------------------------------------------------!    
   !> Read win/win32-formatted date and time in the second block header
   !--

@@ -2,7 +2,7 @@
 !> WIN/WIN32 Channel Table
 !!
 !! @copyright
-!! Copyright (c) 2020 Takuto Maeda. All rights reserved. 
+!! Copyright (c) 2020-2025 Takuto Maeda. All rights reserved. 
 !!
 !! @license 
 !! This software is released under the MIT license. See LICENSE for details. 
@@ -27,7 +27,7 @@ module m_winch
     real(real64)    :: lat       !< station latitude (degrees-north)
     real(real64)    :: elev      !< station elevation (m)
     real(real64)    :: sens      !< sensor sensitivity
-    integer         :: ampl      !< amplification factor
+    real(real64)    :: ampl      !< amplification factor
     real(real64)    :: step      !< 1-digit step in voltage
     real(real64)    :: conv      !< conversion coef. from DC to physical unit
 
@@ -48,7 +48,7 @@ contains
     wch%stnm     = '-12345.0'     
     wch%cmpnm    = '-12345.0'     
     wch%unit     = '-12345.0'     
-    wch%ampl     = -12345         
+    wch%ampl     = -12345.0_real64
     wch%period   = -12345.0_real64
     wch%damp     = -12345.0_real64
     wch%lon      = -12345.0_real64
@@ -118,7 +118,7 @@ contains
        call readline_ascii  (wch0%unit)                     ! sensor unit
        call readline_real64 (wch0%period, -12345.0_real64)  ! natural period
        call readline_real64 (wch0%damp,   -12345.0_real64)  ! damping constant
-       call readline_integer(wch0%ampl,   -12345)           ! amplification factor 
+       call readline_real64 (wch0%ampl,   -12345.0_real64)  ! amplification factor
        call readline_real64 (wch0%step,   1.0_real64)       ! 1 digit step in voltage
        call readline_real64 (wch0%lat,    -12345.0_real64)  ! station latitude
        call readline_real64 (wch0%lon,    -12345.0_real64)  ! station longitude

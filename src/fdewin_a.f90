@@ -2,7 +2,7 @@
 !> Read Win/Win32-formatted seismograph data and export to ascii files: asynchronous version
 !!
 !! @copyright
-!! Copyright (c) 2019 Takuto Maeda. All rights reserved. 
+!! Copyright (c) 2019-2025 Takuto Maeda. All rights reserved. 
 !!
 !! @license 
 !! This software is released under the MIT license. See LICENSE for details. 
